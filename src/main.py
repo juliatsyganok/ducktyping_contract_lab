@@ -5,10 +5,10 @@ from task_platform import TaskPlatform
 
 def main():
     platform = TaskPlatform()
-    #file_source = FileTaskSource("tasks.json")
+    file_source = FileTaskSource("/Users/julia/Desktop/python_lab1_sem2/ducktyping_contract_lab/src/tasks.json")
     gen_source = GeneratorTaskSource(count=3, prefix="demo")
     api_source = ApiTaskSource()
-    #platform.add_source(file_source)
+    platform.add_source(file_source)
     platform.add_source(gen_source)
     platform.add_source(api_source)
 
@@ -16,7 +16,7 @@ def main():
 
     for i, task in enumerate(tasks, 1):
         print(f"{i}. ID: {task.id}")
-        print(f"   Данные: {task.payload}")
+        print(f"Данные: {task.payload}")
         print()
     
     print(f"Всего задач: {len(tasks)}")
