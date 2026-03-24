@@ -5,7 +5,7 @@ from task_platform import TaskPlatform
 
 def main():
     platform = TaskPlatform()
-    file_source = FileTaskSource("/Users/julia/Desktop/python_lab1_sem2/ducktyping_contract_lab/src/tasks.json")
+    file_source = FileTaskSource("tasks.json")
     gen_source = GeneratorTaskSource(count=3, prefix="demo")
     api_source = ApiTaskSource()
     platform.add_source(file_source)

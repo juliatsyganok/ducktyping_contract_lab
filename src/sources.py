@@ -2,6 +2,7 @@ from class_task import Task
 import json
 import uuid
 from typing import List, Any
+import requests
 
 class FileTaskSource:
     """Источник задач из JSON-файла"""
@@ -44,23 +45,39 @@ class GeneratorTaskSource:
     
 
 
+import requests
+from typing import Any, List
+
+
 class ApiTaskSource:
-    """Источник задач из API-заглушки"""
-    DEFAULT_PREFIX="api"
+    """Источник задач из API"""
+    DEFAULT_PREFIX = "api"
+    def __init__(self, api_url: str = "https://dummyjson.com/todos") -> None:
+        self.api_url = api_url
 
-    def __init__(self, api_url: str = "https://api.example.com/tasks") -> None:
-        self._api_url = api_url
-        self._stub_data: list[dict[str, Any]] = [
-            {"id": f"{self.DEFAULT_PREFIX}-{uuid.uuid4().hex[:8]}", "payload": {"source": "external_api", "priority": "high"}},
-            {"id": f"{self.DEFAULT_PREFIX}-{uuid.uuid4().hex[:8]}", "payload": {"source": "external_api", "priority": "low"}},
-        ]
-
-    def get_tasks(self) -> list[Task]:
-        return [Task(id=item["id"], payload=item.get("payload", {})) for item in self._stub_data]
+    def get_tasks(self) -> List[Task]:
+        """Получает задачи из API и преобразует их в Task"""
+        try:
+            response = requests.get(self.api_url, timeout=5)
+            response.raise_for_status() 
+            data = response.json()
+            tasks: List[Task] = []
+            for item in data.get("todos", [])[:10]: 
+                task = Task(
+                    id=f"{self.DEFAULT_PREFIX}-{item['id']}",
+                    payload={
+                        "title": item["todo"],
+                        "completed": item["completed"],
+                        "user_id": item["userId"],
+                        "priority": "high" if not item["completed"] else "low"
+                    }
+                )
+                tasks.append(task)
+            return tasks
+        except requests.RequestException as e:
+            print(f"Ошибка при запросе: {e}")
+            return []
 
     def __repr__(self) -> str:
-        return f"ApiTaskSource(api_url={self._api_url!r})"
-    
-
-
+        return f"ApiTaskSource(api_url={self.api_url!r})"
     
